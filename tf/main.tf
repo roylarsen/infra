@@ -97,7 +97,7 @@ resource "proxmox_vm_qemu" "server" {
     inline = [
       # exit 2 is cloud-init "done with recoverable warnings"
       "cloud-init status --wait > /dev/null || [ $? -eq 2 ]",
-      "curl -sfL https://get.k3s.io | sudo env ${local.k3s_env} sh -s - server --tls-san ${local.server_ip}",
+      "curl -sfL https://get.k3s.io | sudo env ${local.k3s_env} sh -s - server --tls-san ${local.server_ip} --disable servicelb",
       "timeout 600 bash -c 'until sudo k3s kubectl get nodes --no-headers 2>/dev/null | grep -q .; do sleep 5; done'",
       "sudo k3s kubectl wait --for=condition=Ready node --all --timeout=900s",
     ]
