@@ -37,7 +37,7 @@ variable "cores" {
 variable "memory" {
   description = "Memory per VM in MiB"
   type        = number
-  default     = 2048
+  default     = 4096
 }
 
 variable "kvm" {
