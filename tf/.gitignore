@@ -1,0 +1,7 @@
+.terraform/
+*.tfstate
+*.tfstate.*
+crash.log
+*.tfvars
+k3s_ssh_key
+kubeconfig
