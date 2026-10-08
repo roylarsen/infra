@@ -7,6 +7,10 @@ spec:
   interval: 10m
   path: ./flux/clusters/k3s/metallb
   prune: true
+  decryption:
+    provider: sops
+    secretRef:
+      name: sops-age
   wait: true
   timeout: 10m
   sourceRef:
@@ -24,6 +28,10 @@ spec:
     - name: metallb
   path: ./flux/clusters/k3s/metallb-config
   prune: true
+  decryption:
+    provider: sops
+    secretRef:
+      name: sops-age
   sourceRef:
     kind: GitRepository
     name: flux-system
@@ -39,6 +47,10 @@ spec:
     - name: metallb-config
   path: ./flux/clusters/k3s/istio
   prune: true
+  decryption:
+    provider: sops
+    secretRef:
+      name: sops-age
   wait: true
   timeout: 15m
   sourceRef:
@@ -56,6 +68,10 @@ spec:
     - name: metallb-config
   path: ./flux/clusters/k3s/monitoring
   prune: true
+  decryption:
+    provider: sops
+    secretRef:
+      name: sops-age
   wait: true
   timeout: 20m
   sourceRef:
