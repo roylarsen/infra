@@ -41,9 +41,9 @@ variable "memory" {
 }
 
 variable "kvm" {
-  description = "Use KVM hardware virtualization; false falls back to slow emulation (this host has no /dev/kvm)"
+  description = "Use KVM hardware virtualization; set false to fall back to slow emulation on hosts without /dev/kvm"
   type        = bool
-  default     = false
+  default     = true
 }
 
 variable "bridge" {

@@ -24,7 +24,7 @@ terraform init
 terraform apply -var tls_insecure=true   # needed if the Proxmox cert doesn't match the hostname
 ```
 
-Set `-var bootstrap_flux=false` to skip Flux. The default `kvm=false` is for hosts without `/dev/kvm`; it is slow (~25 min).
+Set `-var bootstrap_flux=false` to skip Flux. `kvm` defaults to `true`; use `-var kvm=false` on hosts without `/dev/kvm` (slow emulation).
 
 Common variables are in `variables.tf`: `vm_count`, `base_vmid`, `network_cidr`, `gateway`, `cores`, `memory`, `disk_size`, `dns_domain`, `dns_ttl`, `flux_branch`, `flux_path`.
 

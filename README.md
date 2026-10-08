@@ -76,9 +76,9 @@ inherited from the template.
   (`export DIGITALOCEAN_TOKEN=...`) before running; it is never stored in files.
   These records publish private LAN addresses in public DNS.
 - **Sizing:** `cores` (2), `memory` (2048 MiB), `disk_size` (20G), `disk_storage`
-  (`local-lvm`) and `bridge` (`vmbr0`) are variables. `kvm` defaults to `false`
-  because the Proxmox host lacks `/dev/kvm`; the VMs run under slow emulation
-  (about 25 minutes for a full apply). Set `-var kvm=true` on a KVM-capable host.
+  (`local-lvm`) and `bridge` (`vmbr0`) are variables. `kvm` defaults to `true`
+  (CPU type `host`). On a host without `/dev/kvm`, set `-var kvm=false` to use slow
+  emulation instead.
 - **Flux:** after k3s is up, `flux bootstrap github` installs Flux, commits its
   manifests to `github_owner/github_repository` (default `roylarsen/infra`)
   on branch `flux_branch` (default `new-k3s`) under `flux_path` (default
