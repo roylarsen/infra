@@ -98,3 +98,13 @@ terraform plan -var tls_insecure=true
 terraform apply -var tls_insecure=true
 $(terraform output -raw kubeconfig) && kubectl get nodes
 ```
+
+## Secrets (SOPS + age)
+
+Flux decrypts SOPS-encrypted manifests using the `sops-age` secret in `flux-system`
+(already referenced by every Kustomization in `flux/clusters/k3s/infrastructure.yaml`).
+
+- Private key: `~/.config/sops/age/keys.txt`. **Back it up; it is not in git.** Losing it means losing the ability to decrypt.
+- Public key / rules: `.sops.yaml`. Files named `*.sops.yaml` under `flux/` have only `data`/`stringData` encrypted.
+- Create a secret: write a normal `Secret` manifest as `<name>.sops.yaml`, then `sops --encrypt --in-place <file>`. Edit later with `sops <file>`.
+- Recreate the cluster key: `kubectl -n flux-system create secret generic sops-age --from-file=age.agekey=$HOME/.config/sops/age/keys.txt`
