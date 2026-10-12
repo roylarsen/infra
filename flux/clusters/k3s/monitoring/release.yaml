@@ -75,9 +75,11 @@ spec:
       # in the kube-prometheus-stack-grafana secret.
       adminPassword: null
       service:
-        type: LoadBalancer
-        annotations:
-          external-dns.alpha.kubernetes.io/hostname: grafana.xhousebreakx.org
+        type: ClusterIP
+        port: 80
+      grafana.ini:
+        server:
+          root_url: https://grafana.xhousebreakx.org
       persistence:
         enabled: true
         type: pvc

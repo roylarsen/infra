@@ -1,0 +1,22 @@
+apiVersion: v1
+kind: Secret
+metadata:
+    name: digitalocean-dns-token
+    namespace: cert-manager
+stringData:
+    access-token: ENC[AES256_GCM,data:zJlrWyXE94oZkNHJrkZJVMCEc0kggyPxGkm1h1J4DNsM9UlYw01rnUVtxzYLJIDzw2T7KnWlZKLz9bZVtkLLIN4Xq8UQPFw=,iv:fhtWOFjOuKAktHArogmSY9/kLOtU520j6xZ+OAJR6PM=,tag:bjatjdc5jgk9r+gTLipUww==,type:str]
+sops:
+    age:
+        - enc: |
+            -----BEGIN AGE ENCRYPTED FILE-----
+            YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSAxcWwvNHFLd05BRXlPcmM0
+            Q1ZldXE2bmlJZE4wUkhKZTg4ZFRqMXowVEUwClZQR3JwMUFkZ0pON3Y0Q3NrRi9C
+            S0UvMnp6MVEyQ0p0VHZSa0ZPUkZ6VjQKLS0tIHlvbi9SekRXcmh1anR4aHBoTklB
+            bS93U1JIYzBMM0lJNCtScXJneDN6b1EK4FQPRmT3nwKxjT7Q1MY57Uiurd2ZZCP5
+            5k2wUEWRP53GKFT8kEIFqjP/MjTPTHJJkDaZ3wFp+Zf85BcXm7YUAw==
+            -----END AGE ENCRYPTED FILE-----
+          recipient: age1udfy4gxq8x8am8evcpvv9gk76zy2wldgdr7cyc09pxhp9tmtxslslttnr8
+    encrypted_regex: ^(data|stringData)$
+    lastmodified: "2026-10-12T22:12:04Z"
+    mac: ENC[AES256_GCM,data:ov6DwZPitZZfqLWQaw7M9b7xLvCJXdIMmROYyqwgCLqpPOchmse8DzXQiXJjILUUMDHITDLotC/mPPvylepZoieZu3GmNIxC+cThncc4DpCHamjyk0rwX6yODPjHwlguIYiRNbJs9hytmirBmKD/EaIpv6OfjzeeD/WckGQdvOE=,iv:5/WfXGzBvaozu+vDYSeUErMI8/kTQy2TmJW4c/lc99s=,tag:9iXSJMpGXVn5GcSFYhifHw==,type:str]
+    version: 3.13.3
