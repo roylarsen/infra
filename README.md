@@ -108,3 +108,12 @@ Flux decrypts SOPS-encrypted manifests using the `sops-age` secret in `flux-syst
 - Public key / rules: `.sops.yaml`. Files named `*.sops.yaml` under `flux/` have only `data`/`stringData` encrypted.
 - Create a secret: write a normal `Secret` manifest as `<name>.sops.yaml`, then `sops --encrypt --in-place <file>`. Edit later with `sops <file>`.
 - Recreate the cluster key: `kubectl -n flux-system create secret generic sops-age --from-file=age.agekey=$HOME/.config/sops/age/keys.txt`
+
+## TLS & Ingress (cert-manager + Istio)
+
+- **cert-manager:** Installed via Flux (`flux/clusters/k3s/cert-manager`) using the Jetstack chart. A SOPS-encrypted Secret (`digitalocean-dns-token`) holds the DigitalOcean token used for ACME DNS-01 challenges.
+- **ClusterIssuers:** `letsencrypt-prod` and `letsencrypt-staging` are defined in `flux/clusters/k3s/cert-manager-issuers/`.
+- **Certificates:** Let's Encrypt issues certificates via DNS-01 (e.g. `grafana-tls` for `grafana.xhousebreakx.org` in `istio-system`).
+- **Istio Ingress:** An Istio `Gateway` terminates TLS on port 443 with HTTP->HTTPS redirection on port 80. A `VirtualService` routes `grafana.xhousebreakx.org` to Grafana (`kube-prometheus-stack-grafana:80`).
+- **DNS:** `external-dns` manages the `grafana.xhousebreakx.org` A record pointing to the Istio Ingress Gateway LoadBalancer IP (`192.168.1.161`).
+
