@@ -81,7 +81,7 @@ inherited from the template.
   emulation instead.
 - **Flux:** after k3s is up, `flux bootstrap github` installs Flux, commits its
   manifests to `github_owner/github_repository` (default `roylarsen/infra`)
-  on branch `flux_branch` (default `new-k3s`) under `flux_path` (default
+  on branch `flux_branch` (default `main`) under `flux_path` (default
   `flux/clusters/k3s`), and syncs from there. It needs the `flux` CLI on the
   machine running Terraform and a GitHub token with repo access:
   `export TF_VAR_github_token=...` (the token is stored in Terraform state).

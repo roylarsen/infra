@@ -140,7 +140,7 @@ variable "github_repository" {
 variable "flux_branch" {
   description = "Git branch Flux tracks"
   type        = string
-  default     = "new-k3s"
+  default     = "main"
 }
 
 variable "flux_path" {

@@ -7,7 +7,7 @@ Terraform for a 3-node k3s cluster on Proxmox, with DigitalOcean DNS and a Flux 
 - 3 VMs (`k3s-node-1..3`, IDs 200-202) cloned from template 9000 (see `../scripts`), static IPs `192.168.1.201-203`
 - k3s: node 1 is the server, nodes 2-3 are agents. A kubeconfig is written to `tf/kubeconfig`
 - A records `k3s-node-N.xhousebreakx.org` in DigitalOcean
-- Flux, bootstrapped into the cluster against `roylarsen/infra` (`new-k3s`, `flux/clusters/k3s`)
+- Flux, bootstrapped into the cluster against `roylarsen/infra` (`main`, `flux/clusters/k3s`)
 
 ## Prerequisites
 
