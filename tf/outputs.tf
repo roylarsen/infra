@@ -31,3 +31,14 @@ output "flux_sync" {
   description = "Repository location Flux syncs from"
   value       = var.bootstrap_flux ? "https://github.com/${var.github_owner}/${var.github_repository} (${var.flux_branch}:${var.flux_path})" : "disabled"
 }
+
+output "cloudflare_tunnel_url" {
+  description = "Public hostname routed through the Cloudflare tunnel"
+  value       = "https://${local.cloudflare_tunnel_fqdn} -> ${var.cloudflare_tunnel_origin}"
+}
+
+output "cloudflare_tunnel_token" {
+  description = "Connector token for the tunnel (terraform output -raw cloudflare_tunnel_token)"
+  value       = data.cloudflare_zero_trust_tunnel_cloudflared_token.plex.token
+  sensitive   = true
+}

@@ -7,6 +7,7 @@ Terraform for a 3-node k3s cluster on Proxmox, with DigitalOcean DNS and a Flux 
 - 3 VMs (`k3s-node-1..3`, IDs 200-202) cloned from template 9000 (see `../scripts`), static IPs `192.168.1.201-203`
 - k3s: node 1 is the server, nodes 2-3 are agents. A kubeconfig is written to `tf/kubeconfig`
 - A records `k3s-node-N.xhousebreakx.org` in DigitalOcean
+- Cloudflare tunnel `plex` (`cloudflare.tf`) routing `home.roylarsen.xyz` to `http://plex.xhousebreakx.org:32400`, with the proxied CNAME in the existing `roylarsen.xyz` zone
 - Flux, bootstrapped into the cluster against `roylarsen/infra` (`main`, `flux/clusters/k3s`)
 
 ## Prerequisites
@@ -15,6 +16,7 @@ Terraform >= 1.5, `flux` and `kubectl` on PATH, and these environment variables:
 
 - `PM_API_URL` (ending `/api2/json`), `PM_USER`, `PM_PASS`: Proxmox
 - `DIGITALOCEAN_TOKEN`: DNS
+- `CLOUDFLARE_API_TOKEN`: scoped token with Zone:DNS:Edit, Zone:Zone:Read and Account:Cloudflare Tunnel:Edit
 - `TF_VAR_github_token`: GitHub PAT with repo access (needed when `bootstrap_flux=true`)
 
 ## Usage
@@ -30,8 +32,8 @@ Common variables are in `variables.tf`: `vm_count`, `base_vmid`, `network_cidr`,
 
 ## Files
 
-`main.tf` (VMs and k3s), `dns.tf`, `flux.tf`, `variables.tf`, `outputs.tf`, `versions.tf`.
+`main.tf` (VMs and k3s), `dns.tf`, `cloudflare.tf`, `flux.tf`, `variables.tf`, `outputs.tf`, `versions.tf`.
 
 ## Secrets
 
-State contains the SSH private key, k3s token and GitHub token. `tf/k3s_ssh_key`, `tf/kubeconfig` and state files are gitignored; keep them private.
+State contains the SSH private key, k3s token, GitHub token and the Cloudflare tunnel token (`terraform output -raw cloudflare_tunnel_token`). `tf/k3s_ssh_key`, `tf/kubeconfig` and state files are gitignored; keep them private.

@@ -26,6 +26,10 @@ terraform {
       source  = "hashicorp/local"
       version = "~> 2.2"
     }
+    cloudflare = {
+      source  = "cloudflare/cloudflare"
+      version = "~> 5.28"
+    }
   }
 }
 
@@ -36,3 +40,6 @@ provider "proxmox" {
 
 # The token comes from DIGITALOCEAN_TOKEN in the environment.
 provider "digitalocean" {}
+
+# The token comes from CLOUDFLARE_API_TOKEN in the environment.
+provider "cloudflare" {}
