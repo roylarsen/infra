@@ -19,7 +19,7 @@ variable "cloudflare_tunnel_subdomain" {
 variable "cloudflare_tunnel_origin" {
   description = "Local service the tunnel forwards to."
   type        = string
-  default     = "http://plex.xhousebreakx.org:32400"
+  default     = "http://plex.xhousebreakx.local:32400"
 }
 
 # The zone already exists; it is only looked up here.
