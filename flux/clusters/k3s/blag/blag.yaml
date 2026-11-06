@@ -1,0 +1,87 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: blag
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: blag
+  namespace: blag
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: blag
+  template:
+    metadata:
+      labels:
+        app: blag
+    spec:
+      topologySpreadConstraints:
+        - maxSkew: 1
+          topologyKey: kubernetes.io/hostname
+          whenUnsatisfiable: ScheduleAnyway
+          labelSelector:
+            matchLabels:
+              app: blag
+      containers:
+        - name: blag
+          image: ghcr.io/roylarsen/blag:318df65bbacafd8d171a9704e525c4ba7cdc20e5
+          ports:
+            - name: http
+              containerPort: 8080
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: http
+            periodSeconds: 5
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: http
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          resources:
+            requests:
+              cpu: 10m
+              memory: 32Mi
+            limits:
+              memory: 128Mi
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            runAsNonRoot: true
+            runAsUser: 101
+            capabilities:
+              drop: ["ALL"]
+          volumeMounts:
+            - name: tmp
+              mountPath: /tmp
+      volumes:
+        - name: tmp
+          emptyDir: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: blag
+  namespace: blag
+spec:
+  selector:
+    app: blag
+  ports:
+    - name: http
+      port: 8080
+      targetPort: http
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: blag
+  namespace: blag
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app: blag
