@@ -4,10 +4,10 @@ variable "cloudflare_zone_name" {
   default     = "roylarsen.xyz"
 }
 
-variable "cloudflare_tunnel_name" {
-  description = "Name of the Terraform-managed Cloudflare tunnel."
+variable "cloudflare_tunnel_id" {
+  description = "ID of the existing Cloudflare tunnel (the one the in-cluster cloudflared connects to)."
   type        = string
-  default     = "plex"
+  default     = "cf1ee413-2a43-4dc7-997f-18c3a17946b1"
 }
 
 variable "cloudflare_tunnel_subdomain" {
@@ -32,19 +32,14 @@ data "cloudflare_zone" "this" {
 locals {
   cloudflare_account_id    = data.cloudflare_zone.this.account.id
   cloudflare_tunnel_fqdn   = "${var.cloudflare_tunnel_subdomain}.${var.cloudflare_zone_name}"
-  cloudflare_tunnel_target = "${cloudflare_zero_trust_tunnel_cloudflared.plex.id}.cfargotunnel.com"
+  cloudflare_tunnel_target = "${var.cloudflare_tunnel_id}.cfargotunnel.com"
 }
 
-# Remotely managed tunnel: Cloudflare stores the ingress rules defined below.
-resource "cloudflare_zero_trust_tunnel_cloudflared" "plex" {
-  account_id = local.cloudflare_account_id
-  name       = var.cloudflare_tunnel_name
-  config_src = "cloudflare"
-}
-
+# The tunnel itself already exists and its connector runs in the cluster; only its
+# ingress config and DNS are managed here.
 resource "cloudflare_zero_trust_tunnel_cloudflared_config" "plex" {
   account_id = local.cloudflare_account_id
-  tunnel_id  = cloudflare_zero_trust_tunnel_cloudflared.plex.id
+  tunnel_id  = var.cloudflare_tunnel_id
 
   config = {
     ingress = [
@@ -53,9 +48,16 @@ resource "cloudflare_zero_trust_tunnel_cloudflared_config" "plex" {
         service  = var.cloudflare_tunnel_origin
       },
       {
+        hostname = "plex.roylarsen.xyz"
+        service  = "http://plex.xhousebreakx.local:32400"
+      },
+      {
         service = "http_status:404"
       },
     ]
+    warp-routing = {
+      enabled = false
+    }
   }
 }
 
@@ -66,9 +68,4 @@ resource "cloudflare_dns_record" "tunnel" {
   content = local.cloudflare_tunnel_target
   proxied = true
   ttl     = 1
-}
-
-data "cloudflare_zero_trust_tunnel_cloudflared_token" "plex" {
-  account_id = local.cloudflare_account_id
-  tunnel_id  = cloudflare_zero_trust_tunnel_cloudflared.plex.id
 }
