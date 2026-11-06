@@ -22,6 +22,12 @@ variable "cloudflare_tunnel_origin" {
   default     = "http://plex.xhousebreakx.local:32400"
 }
 
+variable "blag_origin" {
+  description = "In-cluster service that serves the blog."
+  type        = string
+  default     = "http://blag.blag.svc.cluster.local:8080"
+}
+
 # The zone already exists; it is only looked up here.
 data "cloudflare_zone" "this" {
   filter = {
@@ -52,6 +58,22 @@ resource "cloudflare_zero_trust_tunnel_cloudflared_config" "plex" {
         service  = "http://plex.xhousebreakx.local:32400"
       },
       {
+        hostname = "blag.${var.cloudflare_zone_name}"
+        service  = var.blag_origin
+      },
+      {
+        hostname = "www.${var.cloudflare_zone_name}"
+        service  = var.blag_origin
+      },
+      {
+        hostname = "blog.${var.cloudflare_zone_name}"
+        service  = var.blag_origin
+      },
+      {
+        hostname = var.cloudflare_zone_name
+        service  = var.blag_origin
+      },
+      {
         service = "http_status:404"
       },
     ]
@@ -64,6 +86,36 @@ resource "cloudflare_zero_trust_tunnel_cloudflared_config" "plex" {
 resource "cloudflare_dns_record" "tunnel" {
   zone_id = data.cloudflare_zone.this.zone_id
   name    = var.cloudflare_tunnel_subdomain
+  type    = "CNAME"
+  content = local.cloudflare_tunnel_target
+  proxied = true
+  ttl     = 1
+}
+
+# Staging hostname for the blog; www, blog and the apex are cut over separately.
+resource "cloudflare_dns_record" "blag" {
+  zone_id = data.cloudflare_zone.this.zone_id
+  name    = "blag"
+  type    = "CNAME"
+  content = local.cloudflare_tunnel_target
+  proxied = true
+  ttl     = 1
+}
+
+# Public blog names, adopted from the former DigitalOcean App Platform CNAMEs.
+locals {
+  blog_records = {
+    www  = "www"
+    blog = "blog"
+    apex = "@"
+  }
+}
+
+resource "cloudflare_dns_record" "blog" {
+  for_each = local.blog_records
+
+  zone_id = data.cloudflare_zone.this.zone_id
+  name    = each.value
   type    = "CNAME"
   content = local.cloudflare_tunnel_target
   proxied = true

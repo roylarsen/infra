@@ -8,6 +8,7 @@ Terraform for a 3-node k3s cluster on Proxmox, with DigitalOcean DNS and a Flux 
 - k3s: node 1 is the server, nodes 2-3 are agents. A kubeconfig is written to `tf/kubeconfig`
 - A records `k3s-node-N.xhousebreakx.org` in DigitalOcean
 - Ingress config for the existing Cloudflare tunnel (`cloudflare.tf`): `home.roylarsen.xyz` to `http://plex.xhousebreakx.local:32400` (plus the existing `plex.roylarsen.xyz` rule), with the proxied CNAME in the `roylarsen.xyz` zone
+- Blog routing on the same tunnel: `blag`, `www`, `blog` and the apex `roylarsen.xyz` go to the in-cluster `blag` service (`flux/clusters/k3s/blag`); the CNAMEs are proxied and adopted via `imports.tf`. `blog` and the apex 301 to `www` in nginx
 - Flux, bootstrapped into the cluster against `roylarsen/infra` (`main`, `flux/clusters/k3s`)
 
 ## Prerequisites
