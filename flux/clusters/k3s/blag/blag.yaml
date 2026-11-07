@@ -27,7 +27,7 @@ spec:
               app: blag
       containers:
         - name: blag
-          image: ghcr.io/roylarsen/blag:318df65bbacafd8d171a9704e525c4ba7cdc20e5
+          image: ghcr.io/roylarsen/blag:4f3d3525b5c42f17cc156de2a0d36c651b103a9d
           ports:
             - name: http
               containerPort: 8080
@@ -58,6 +58,25 @@ spec:
           volumeMounts:
             - name: tmp
               mountPath: /tmp
+        - name: exporter
+          image: nginx/nginx-prometheus-exporter:1.4.2
+          args: ["--nginx.scrape-uri=http://127.0.0.1:8081/stub_status"]
+          ports:
+            - name: metrics
+              containerPort: 9113
+          resources:
+            requests:
+              cpu: 5m
+              memory: 16Mi
+            limits:
+              memory: 64Mi
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            runAsNonRoot: true
+            runAsUser: 65534
+            capabilities:
+              drop: ["ALL"]
       volumes:
         - name: tmp
           emptyDir: {}
@@ -67,6 +86,8 @@ kind: Service
 metadata:
   name: blag
   namespace: blag
+  labels:
+    app: blag
 spec:
   selector:
     app: blag
@@ -74,6 +95,21 @@ spec:
     - name: http
       port: 8080
       targetPort: http
+    - name: metrics
+      port: 9113
+      targetPort: metrics
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: blag
+  namespace: blag
+spec:
+  selector:
+    matchLabels:
+      app: blag
+  endpoints:
+    - port: metrics
 ---
 apiVersion: policy/v1
 kind: PodDisruptionBudget

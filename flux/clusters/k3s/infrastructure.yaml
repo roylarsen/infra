@@ -180,6 +180,8 @@ metadata:
   namespace: flux-system
 spec:
   interval: 10m
+  dependsOn:
+    - name: monitoring
   path: ./flux/clusters/k3s/blag
   prune: true
   sourceRef:
