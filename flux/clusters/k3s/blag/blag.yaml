@@ -27,7 +27,7 @@ spec:
               app: blag
       containers:
         - name: blag
-          image: ghcr.io/roylarsen/blag:97dc78769cc685bb9470f5cf405f5ea5d31702ea
+          image: ghcr.io/roylarsen/blag:6b7699167b5fc990bd15244492e649697d4e434e
           ports:
             - name: http
               containerPort: 8080
