@@ -20,6 +20,65 @@ included.
   retained as a rollback. The planned post-soak-period decommission has not
   been done.
 
+## k3s cluster buildout
+
+### Compute and Kubernetes
+
+- Added `scripts/create-ubuntu-template.sh` to resolve the current Ubuntu
+  Server cloud image through Canonical's image-stream metadata and create a
+  cloud-init Proxmox template named `ubuntu-latest` (VM ID 9000).
+- Added Terraform in `tf/` to full-clone that template into three VMs:
+  `k3s-node-1` (VM 200, server/control plane) and `k3s-node-2`/`k3s-node-3`
+  (VMs 201-202, agents). Each is configured for 2 vCPUs, 4 GiB RAM, a 20 GiB
+  root disk, cloud-init, a generated SSH key, and static LAN addresses
+  `192.168.1.201`-`192.168.1.203`.
+- Terraform installs k3s over SSH, creates a random cluster join token, waits
+  for node registration, and fetches a kubeconfig. The SSH private key,
+  kubeconfig, and Terraform state are gitignored; state contains sensitive
+  generated values and must stay private.
+- Added DigitalOcean A records for the nodes in the existing
+  `xhousebreakx.org` zone.
+- Flux bootstraps from the `roylarsen/infra` repository and reconciles
+  `flux/clusters/k3s`. The GitOps configuration installs:
+  - MetalLB with an L2 address pool for LAN LoadBalancer services.
+  - Istio base, control plane, and ingress gateway.
+  - cert-manager with Let's Encrypt production/staging issuers and DNS-01
+    credentials stored in SOPS-encrypted Secrets.
+  - kube-prometheus-stack (Prometheus, Alertmanager, Grafana) with persistent
+    local-path volumes and Istio dashboards.
+  - external-dns for the DigitalOcean zone.
+  - Cloudflare Tunnel connectors for public service access.
+  - SOPS/age decryption for encrypted Kubernetes Secret manifests.
+- k3s has its built-in ServiceLB and Traefik disabled so MetalLB and Istio own
+  the cluster's load-balancer and ingress responsibilities.
+
+### Cluster buildout issues
+
+- The initial Proxmox provider version (2.9.14) panicked against Proxmox VE
+  8.4. The provider was upgraded to `3.0.2-rc10`, and Terraform itself was
+  upgraded from 0.13.5 to 1.16.5.
+- Proxmox's TLS certificate is valid for its `.org` hostname, not its `.local`
+  hostname. Terraform API access uses the certificate-matching name; TLS
+  verification remains enabled by default.
+- Initial template clones lacked usable disk/network configuration. Explicit
+  disk, cloud-init drive, network, boot, serial, and VGA blocks were added.
+- The Proxmox host initially lacked `/dev/kvm`, so VMs ran under slow software
+  emulation and cluster startup took a long time. The user enabled hardware
+  virtualization; Terraform now defaults to KVM with CPU type `host`. Memory
+  was raised to 4 GiB per node after the overloaded control plane caused
+  Kubernetes API and metrics trouble.
+- Cloud-init can exit with status 2 when it has completed with recoverable
+  warnings. Terraform now accepts that status and waits for k3s nodes to
+  register before proceeding.
+- The k3s join token is passed to the VMs through a temporary file rather than
+  being interpolated into logged provisioner commands. It is still present in
+  Terraform state, so state storage and backups need protection.
+- Early Flux bootstrap attempts encountered an invalid GitHub PAT, a missing
+  target branch, and outdated local Flux/kubectl clients. The token and branch
+  were corrected, and Flux is now syncing the configured branch. Later, a PAT
+  rotation caused Flux Git authentication to fail until the in-cluster
+  `flux-system` Secret was updated.
+
 ## Work completed
 
 ### Existing tunnel and Plex
